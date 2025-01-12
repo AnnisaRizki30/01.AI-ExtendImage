@@ -5,8 +5,8 @@ from diffusers.models.model_loading_utils import load_state_dict
 from gradio_imageslider import ImageSlider
 from huggingface_hub import hf_hub_download
 
-from controlnet_union import ControlNetModel_Union
-from pipeline_fill_sd_xl import StableDiffusionXLFillPipeline
+from extend_image.controlnet_union import ControlNetModel_Union
+from extend_image.pipeline_fill_sd_xl import StableDiffusionXLFillPipeline
 
 from PIL import Image, ImageDraw
 
@@ -42,7 +42,7 @@ pipe = StableDiffusionXLFillPipeline.from_pretrained(
 
 pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
-def infer(image, num_inference_steps=8, prompt_input=None):
+def infer(image, prompt_input=None, num_inference_steps=8):  # Tetapkan nilai default
     target_size = (1280, 720)
 
     source = image
@@ -96,6 +96,7 @@ def infer(image, num_inference_steps=8, prompt_input=None):
 
     yield background, cnet_image
 
+
 def clear_result():
     return gr.update(value=None)
 
@@ -136,7 +137,7 @@ with gr.Blocks(css=css) as demo:
         outputs=result,
     ).then(
         fn=infer,
-        inputs=[input_image, 8, prompt_input],
+        inputs=[input_image, prompt_input],
         outputs=result,
     )
 
@@ -146,7 +147,7 @@ with gr.Blocks(css=css) as demo:
         outputs=result,
     ).then(
         fn=infer,
-        inputs=[input_image, 8, prompt_input],
+        inputs=[input_image, prompt_input],
         outputs=result,
     )
 

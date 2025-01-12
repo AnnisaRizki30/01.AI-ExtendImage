@@ -167,7 +167,7 @@ def preview_image_and_mask(image, width, height, overlap_percentage, resize_opti
     return preview
 
 def infer(image, prompt_input):
-    background, mask = prepare_image_and_mask(image, width=1280, height=720, overlap_percentage=10, num_inference_steps=10, resize_option="Full", custom_resize_percentage=0, alignment="Middle", overlap_left=True, overlap_right=True, overlap_top=True, overlap_bottom=True)
+    background, mask = prepare_image_and_mask(image, width=1280, height=720, overlap_percentage=10, resize_option="Full", custom_resize_percentage=0, alignment="Middle", overlap_left=True, overlap_right=True, overlap_top=True, overlap_bottom=True)
 
     cnet_image = background.copy()
     cnet_image.paste(0, (0, 0), mask)

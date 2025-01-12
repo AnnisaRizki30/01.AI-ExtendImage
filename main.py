@@ -45,7 +45,9 @@ pipe = StableDiffusionXLFillPipeline.from_pretrained(
 pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
 
-def infer(image, model_selection='RealVisXL V5.0 Lightning', overlap_width=50, num_inference_steps=8, width=1280, height=720, prompt_input=None):
+def infer(image, overlap_width=50, num_inference_steps=8, width=1280, height=720, prompt_input=None):
+    torch.cuda.empty_cache()
+
     source = image
     target_size = (width, height)
     target_ratio = (width, height)  

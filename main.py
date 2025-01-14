@@ -1,18 +1,17 @@
-import gradio as gr
 import torch
-
-from diffusers import AutoencoderKL, TCDScheduler, DPMSolverMultistepScheduler 
+from diffusers import AutoencoderKL, TCDScheduler 
 from diffusers.models.model_loading_utils import load_state_dict
 from gradio_imageslider import ImageSlider
 from huggingface_hub import hf_hub_download
-
 from extend_image.controlnet_union import ControlNetModel_Union
 from extend_image.pipeline_fill_sd_xl import StableDiffusionXLFillPipeline
-
 from PIL import Image, ImageDraw
+import warnings
+warnings.simplefilter("ignore", category=FutureWarning)
+warnings.simplefilter("ignore", category=UserWarning)
+warnings.simplefilter("ignore", category=SyntaxWarning)
 
 
-# Load models
 config_file = hf_hub_download(
     "xinsir/controlnet-union-sdxl-1.0",
     filename="config_promax.json",
@@ -50,10 +49,8 @@ def infer(image, overlap_width=50, num_inference_steps=8, width=1280, height=720
 
     source = image
     target_size = (width, height)
-    target_ratio = (width, height)  
     overlap = overlap_width
 
-    # Upscale if source is smaller than target in both dimensions
     if source.width < target_size[0] and source.height < target_size[1]:
         scale_factor = min(target_size[0] / source.width, target_size[1] / source.height)
         new_width = int(source.width * scale_factor)
@@ -107,61 +104,3 @@ def infer(image, overlap_width=50, num_inference_steps=8, width=1280, height=720
     cnet_image.paste(image, (0, 0), mask)
 
     yield background, cnet_image
-
-
-def clear_result():
-    return gr.update(value=None)
-
-
-css = """
-.gradio-container {
-    width: 1200px !important;
-}
-"""
-
-title = """<h1 align="center">AI Extend Image</h1>"""
-
-with gr.Blocks(css=css) as demo:
-    with gr.Column():
-        gr.HTML(title)
-
-        with gr.Row():
-            with gr.Column():
-                input_image = gr.Image(
-                    type="pil",
-                    label="Input Image",
-                    sources=["upload"],
-                    height=300
-                )
-
-                prompt_input = gr.Textbox(label="Prompt (Optional)")
-
-                run_button = gr.Button("Generate", scale=1)
-
-            with gr.Column():
-                result = ImageSlider(
-                    interactive=False,
-                    label="Generated Image",
-                )
-
-    run_button.click(
-        fn=clear_result,
-        inputs=None,
-        outputs=result,
-    ).then(
-        fn=infer,
-        inputs=[input_image, prompt_input],
-        outputs=result,
-    )
-
-    prompt_input.submit(
-        fn=clear_result,
-        inputs=None,
-        outputs=result,
-    ).then(
-        fn=infer,
-        inputs=[input_image, prompt_input],
-        outputs=result,
-    )
-
-demo.queue().launch(debug=True)

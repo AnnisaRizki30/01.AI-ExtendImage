@@ -11,6 +11,7 @@ warnings.simplefilter("ignore", category=FutureWarning)
 warnings.simplefilter("ignore", category=UserWarning)
 warnings.simplefilter("ignore", category=SyntaxWarning)
 
+from torch.cuda.amp import autocast  # Import mixed precision support
 
 config_file = hf_hub_download(
     "xinsir/controlnet-union-sdxl-1.0",
@@ -44,7 +45,7 @@ pipe = StableDiffusionXLFillPipeline.from_pretrained(
 pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
 
-def inference_exted_image(image, overlap_width=50, num_inference_steps=8, width=1280, height=720, prompt_input=None):
+def inference_extend_image(image, overlap_width=50, num_inference_steps=8, width=1280, height=720, prompt_input=None):
     torch.cuda.empty_cache()
     torch.cuda.ipc_collect()
 
@@ -84,12 +85,14 @@ def inference_exted_image(image, overlap_width=50, num_inference_steps=8, width=
     if prompt_input and prompt_input.strip() != "":
         final_prompt += ", " + prompt_input.strip()
 
-    (
-        prompt_embeds,
-        negative_prompt_embeds,
-        pooled_prompt_embeds,
-        negative_pooled_prompt_embeds,
-    ) = pipe.encode_prompt(final_prompt, "cuda", True)
+    # Encoding prompt using mixed precision
+    with autocast():
+        (
+            prompt_embeds,
+            negative_prompt_embeds,
+            pooled_prompt_embeds,
+            negative_pooled_prompt_embeds,
+        ) = pipe.encode_prompt(final_prompt, "cuda", True)
 
     for image in pipe(
         prompt_embeds=prompt_embeds,

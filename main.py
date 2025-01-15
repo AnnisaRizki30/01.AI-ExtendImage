@@ -46,6 +46,7 @@ pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
 def inference_exted_image(image, overlap_width=50, num_inference_steps=8, width=1280, height=720, prompt_input=None):
     torch.cuda.empty_cache()
+    torch.cuda.ipc_collect()
 
     source = image
     target_size = (width, height)

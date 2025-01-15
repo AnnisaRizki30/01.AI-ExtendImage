@@ -1,6 +1,6 @@
 torch==2.1.0
 torchvision
-torchaudio==2.1.0
+torchaudio
 gradio==3.50.0
 gradio-imageslider
 numpy==1.26.4

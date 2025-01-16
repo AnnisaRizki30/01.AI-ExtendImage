@@ -1,9 +1,10 @@
-torch==2.1.0
+torch
 torchvision
 torchaudio
 gradio==3.50.0
 gradio-imageslider
-numpy==1.26.4
+#numpy==1.26.4
+numpy
 transformers
 accelerate
 diffusers

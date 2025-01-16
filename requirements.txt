@@ -1,4 +1,4 @@
-torch==2.5.1
+torch
 torchvision
 torchaudio
 gradio==3.50.0

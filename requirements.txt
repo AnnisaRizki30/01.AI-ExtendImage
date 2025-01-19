@@ -7,6 +7,5 @@ gradio-imageslider
 numpy
 transformers
 accelerate
-diffusers
 fastapi<0.113.0
 opencv-python

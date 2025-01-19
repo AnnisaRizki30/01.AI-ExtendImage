@@ -1,7 +1,10 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import torch
 from diffusers import AutoencoderKL, TCDScheduler 
 from diffusers.models.model_loading_utils import load_state_dict
-from gradio_imageslider import ImageSlider
+#from gradio_imageslider import ImageSlider
 from huggingface_hub import hf_hub_download
 from controlnet_union import ControlNetModel_Union
 from pipeline_fill_sd_xl import StableDiffusionXLFillPipeline

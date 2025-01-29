@@ -47,16 +47,22 @@ pipe = StableDiffusionXLFillPipeline.from_pretrained(
 
 pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
-def prepare_image_and_mask(image, width, height, overlap_percentage, resize_option, custom_resize_percentage, alignment, overlap_left, overlap_right, overlap_top, overlap_bottom):
+
+def prepare_image_and_mask(image, width, height, overlap_percentage, resize_option, custom_resize_percentage, alignment, overlap_left, overlap_right, overlap_top, overlap_bottom, target_ratio=None):
     target_size = (width, height)
 
-    # Calculate the scaling factor to fit the image within the target size
-    scale_factor = min(target_size[0] / image.width, target_size[1] / image.height)
-    new_width = int(image.width * scale_factor)
-    new_height = int(image.height * scale_factor)
-    
-    # Resize the source image to fit within target size
-    source = image.resize((new_width, new_height), Image.LANCZOS)
+    # Check if the target ratio is "Instagram Post"
+    if target_ratio == "Instagram Post":
+        # Directly resize to 500x500 without aspect ratio consideration
+        source = image.resize((500, 500), Image.LANCZOS)
+    else:
+        # Calculate the scaling factor to fit the image within the target size
+        scale_factor = min(target_size[0] / image.width, target_size[1] / image.height)
+        new_width = int(image.width * scale_factor)
+        new_height = int(image.height * scale_factor)
+
+        # Resize the source image to fit within target size
+        source = image.resize((new_width, new_height), Image.LANCZOS)
 
     # Apply resize option using percentages
     if resize_option == "Full":
@@ -144,8 +150,6 @@ def prepare_image_and_mask(image, width, height, overlap_percentage, resize_opti
     ], fill=0)
 
     return background, mask
-
-
 
 
 def inference_extend_image(image, num_inference_steps=8, target_ratio=None, custom_width=None, custom_height=None, prompt_input=None):

@@ -49,9 +49,6 @@ pipe = StableDiffusionXLFillPipeline.from_pretrained(
 pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
 
-from PIL import Image, ImageDraw
-import traceback
-
 def prepare_image_and_mask(image, width, height, overlap_percentage, resize_option, custom_resize_percentage, alignment, overlap_left, overlap_right, overlap_top, overlap_bottom, target_ratio=None):
     target_size = (width, height)
 
@@ -206,15 +203,9 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     cnet_image = background.copy()
     cnet_image.paste(0, (0, 0), mask)
 
-    final_prompt = "high quality"
+    final_prompt = "high quality, no nudity, no extra limbs, no disfigured bodies"
     if prompt_input and prompt_input.strip() != "":
         final_prompt += ", " + prompt_input.strip()
-
-    negative_prompt_input = "no nudity, no extra limbs, no disfigured bodies"
-    # Negative prompt untuk menghindari hasil yang tidak diinginkan (misalnya naked atau jumlah anggota badan tidak sesuai)
-    final_negative_prompt = ""
-    if negative_prompt_input and negative_prompt_input.strip() != "":
-        final_negative_prompt += ", " + negative_prompt_input.strip()
 
     # Encoding prompt menggunakan mixed precision
     with torch.inference_mode():
@@ -226,9 +217,6 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
                 negative_pooled_prompt_embeds,
             ) = pipe.encode_prompt(final_prompt, "cuda", True)
 
-            # Encode negative prompt jika ada
-            if final_negative_prompt.strip():
-                negative_prompt_embeds = pipe.encode_prompt(final_negative_prompt, "cuda", False)
 
     for image in pipe(
         prompt_embeds=prompt_embeds,

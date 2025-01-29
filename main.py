@@ -48,9 +48,22 @@ pipe = StableDiffusionXLFillPipeline.from_pretrained(
 pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
 
-def inference_extend_image(image, overlap_width=50, num_inference_steps=8, width=1280, height=720, prompt_input=None):
+def inference_extend_image(image, overlap_width=50, num_inference_steps=8, target_ratio=None, custom_width=None, custom_height=None, prompt_input=None):
     torch.cuda.empty_cache()
     torch.cuda.ipc_collect()
+
+    if target_ratio == "Square":
+        width = 1024
+        height = 1024
+    elif target_ratio == "Landscape":
+        width = 1280
+        height = 720
+    elif target_ratio == "Potrait":
+        width = 720
+        height = 1024
+    elif target_ratio == "Custom":
+        width = custom_width
+        height = custom_height
 
     source = image
     target_size = (width, height)

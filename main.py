@@ -53,14 +53,24 @@ def prepare_image_and_mask(image, width, height, overlap_percentage, resize_opti
     target_size = (width, height)
 
     try:
-        # Check if the target ratio is "Instagram Post"
         if target_ratio == "Instagram Post":
-            # Directly resize to 500x500 without aspect ratio consideration
-            source = image.resize((500, 500), Image.LANCZOS)
+            # Ambil ukuran asli gambar
+            original_width, original_height = image.size
             
-            # Ensure that the image size matches the target size exactly
-            if source.size != (500, 500):
-                raise ValueError(f"Image size does not match target size for Instagram Post. Expected (500, 500), but got {source.size}")
+            # Tentukan ukuran terkecil untuk dipotong agar tetap square
+            crop_size = min(original_width, original_height)
+            
+            # Hitung koordinat cropping agar tetap di tengah
+            left = (original_width - crop_size) // 2
+            top = (original_height - crop_size) // 2
+            right = left + crop_size
+            bottom = top + crop_size
+            
+            # Crop gambar ke square
+            image = image.crop((left, top, right, bottom))
+            
+            # Resize ke 500x500
+            source = image.resize((500, 500), Image.LANCZOS)
 
         else:
             # Calculate the scaling factor to fit the image within the target size
@@ -169,7 +179,7 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     torch.cuda.empty_cache()
     torch.cuda.ipc_collect()
 
-    alignment = "Middle"
+    alignment = "Bottom"
 
     if target_ratio == "Square":
         width = 1024
@@ -193,10 +203,10 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     resize_option = "Full"
     overlap_percentage = 10
     custom_resize_percentage = 50
-    overlap_left = True 
-    overlap_right = True
-    overlap_top = True
-    overlap_bottom = True
+    overlap_left = False 
+    overlap_right = False
+    overlap_top = False
+    overlap_bottom = False
         
     background, mask = prepare_image_and_mask(image, width, height, overlap_percentage, resize_option, custom_resize_percentage, alignment, overlap_left, overlap_right, overlap_top, overlap_bottom, target_ratio)
 

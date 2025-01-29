@@ -108,13 +108,14 @@ def inference_extend_image(image, overlap_width=50, num_inference_steps=8, targe
         final_prompt += ", " + prompt_input.strip()
 
     # Encoding prompt using mixed precision
-    with autocast():
-        (
-            prompt_embeds,
-            negative_prompt_embeds,
-            pooled_prompt_embeds,
-            negative_pooled_prompt_embeds,
-        ) = pipe.encode_prompt(final_prompt, "cuda", True)
+    with torch.inference_mode():
+        with autocast():
+            (
+                prompt_embeds,
+                negative_prompt_embeds,
+                pooled_prompt_embeds,
+                negative_pooled_prompt_embeds,
+            ) = pipe.encode_prompt(final_prompt, "cuda", True)
 
     for image in pipe(
         prompt_embeds=prompt_embeds,

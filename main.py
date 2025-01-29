@@ -61,6 +61,12 @@ def inference_extend_image(image, overlap_width=50, num_inference_steps=8, targe
     elif target_ratio == "Potrait":
         width = 720
         height = 1024
+    elif target_ratio == "Instagram Post":
+        width = 500
+        height = 500
+    elif target_ratio == "Instagram Stories":
+        width = 800
+        height = 1280
     elif target_ratio == "Custom":
         width = custom_width
         height = custom_height

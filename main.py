@@ -148,7 +148,7 @@ def prepare_image_and_mask(image, width, height, overlap_percentage, resize_opti
 
 
 
-def inference_extend_image(image, overlap_width=50, num_inference_steps=8, target_ratio=None, custom_width=None, custom_height=None, prompt_input=None):
+def inference_extend_image(image, num_inference_steps=8, target_ratio=None, custom_width=None, custom_height=None, prompt_input=None):
     torch.cuda.empty_cache()
     torch.cuda.ipc_collect()
 

@@ -185,7 +185,7 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     overlap_top = True
     overlap_bottom = True
         
-    background, mask = prepare_image_and_mask(image, width, height, overlap_percentage, resize_option, custom_resize_percentage, alignment, overlap_left, overlap_right, overlap_top, overlap_bottom)
+    background, mask = prepare_image_and_mask(image, width, height, overlap_percentage, resize_option, custom_resize_percentage, alignment, overlap_left, overlap_right, overlap_top, overlap_bottom, target_ratio)
 
     cnet_image = background.copy()
     cnet_image.paste(0, (0, 0), mask)

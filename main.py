@@ -50,18 +50,26 @@ pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
 
 def prepare_image_and_mask(image, width, height, overlap_percentage, resize_option, custom_resize_percentage, alignment, overlap_left, overlap_right, overlap_top, overlap_bottom, target_ratio=None):
+    # Periksa jika gambar valid
+    if image is None or not isinstance(image, Image.Image):
+        raise ValueError("Objek gambar tidak valid. Pastikan gambar berhasil dimuat.")
+
+    # Pastikan gambar memiliki ukuran
+    if image.width is None or image.height is None:
+        raise ValueError("Gambar tidak memiliki atribut width/height yang valid.")
+
     target_size = (width, height)
 
     try:
-        # Calculate the scaling factor to fit the image within the target size
+        # Kalkulasi faktor skala untuk menyesuaikan gambar dalam ukuran target
         scale_factor = min(target_size[0] / image.width, target_size[1] / image.height)
         new_width = int(image.width * scale_factor)
         new_height = int(image.height * scale_factor)
 
-        # Resize the source image to fit within target size
+        # Resize gambar sumber untuk menyesuaikan ukuran target
         source = image.resize((new_width, new_height), Image.LANCZOS)
 
-        # Apply resize option using percentages
+        # Apply resize option menggunakan persentase
         if resize_option == "Full":
             resize_percentage = 100
         elif resize_option == "50%":
@@ -73,27 +81,27 @@ def prepare_image_and_mask(image, width, height, overlap_percentage, resize_opti
         else:  # Custom
             resize_percentage = custom_resize_percentage
 
-        # Calculate new dimensions based on percentage
+        # Kalkulasi dimensi baru berdasarkan persentase
         resize_factor = resize_percentage / 100
         new_width = int(source.width * resize_factor)
         new_height = int(source.height * resize_factor)
 
-        # Ensure minimum size of 64 pixels
+        # Pastikan ukuran minimum 64 piksel
         new_width = max(new_width, 64)
         new_height = max(new_height, 64)
 
-        # Resize the image
+        # Resize gambar
         source = source.resize((new_width, new_height), Image.LANCZOS)
 
-        # Calculate the overlap in pixels based on the percentage
+        # Kalkulasi overlap dalam piksel berdasarkan persentase
         overlap_x = int(new_width * (overlap_percentage / 100))
         overlap_y = int(new_height * (overlap_percentage / 100))
 
-        # Ensure minimum overlap of 1 pixel
+        # Pastikan overlap minimum 1 piksel
         overlap_x = max(overlap_x, 1)
         overlap_y = max(overlap_y, 1)
 
-        # Calculate margins based on alignment
+        # Kalkulasi margin berdasarkan alignment
         if alignment == "Middle":
             margin_x = (target_size[0] - new_width) // 2
             margin_y = (target_size[1] - new_height) // 2
@@ -110,19 +118,19 @@ def prepare_image_and_mask(image, width, height, overlap_percentage, resize_opti
             margin_x = (target_size[0] - new_width) // 2
             margin_y = target_size[1] - new_height
 
-        # Adjust margins to eliminate gaps
+        # Sesuaikan margin untuk menghindari celah
         margin_x = max(0, min(margin_x, target_size[0] - new_width))
         margin_y = max(0, min(margin_y, target_size[1] - new_height))
 
-        # Create a new background image and paste the resized source image
+        # Buat gambar latar belakang baru dan tempelkan gambar sumber yang telah diresize
         background = Image.new('RGB', target_size, (255, 255, 255))
         background.paste(source, (margin_x, margin_y))
 
-        # Create the mask
+        # Buat mask
         mask = Image.new('L', target_size, 255)
         mask_draw = ImageDraw.Draw(mask)
 
-        # Calculate overlap areas
+        # Kalkulasi area overlap
         white_gaps_patch = 2
 
         left_overlap = margin_x + overlap_x if overlap_left else margin_x + white_gaps_patch
@@ -140,7 +148,7 @@ def prepare_image_and_mask(image, width, height, overlap_percentage, resize_opti
             bottom_overlap = margin_y + new_height - overlap_y if overlap_bottom else margin_y + new_height
 
 
-        # Draw the mask
+        # Gambar mask
         mask_draw.rectangle([
             (left_overlap, top_overlap),
             (right_overlap, bottom_overlap)
@@ -149,7 +157,7 @@ def prepare_image_and_mask(image, width, height, overlap_percentage, resize_opti
         return background, mask
 
     except Exception as e:
-        # Capture the traceback and raise a detailed error
+        # Tangkap traceback dan tampilkan error yang lebih jelas
         print(f"Error encountered while processing the image: {e}")
         traceback.print_exc()
         raise e

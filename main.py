@@ -160,6 +160,8 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     torch.cuda.ipc_collect()
 
     alignment = "Bottom"
+    width = None
+    height = None
 
     if target_ratio == "Square":
         width = 1024

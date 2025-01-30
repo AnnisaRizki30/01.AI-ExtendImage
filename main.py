@@ -53,33 +53,13 @@ def prepare_image_and_mask(image, width, height, overlap_percentage, resize_opti
     target_size = (width, height)
 
     try:
-        if target_ratio == "Instagram Post":
-            # Ambil ukuran asli gambar
-            original_width, original_height = image.size
-            
-            # Tentukan ukuran terkecil untuk dipotong agar tetap square
-            crop_size = min(original_width, original_height)
-            
-            # Hitung koordinat cropping agar tetap di tengah
-            left = (original_width - crop_size) // 2
-            top = (original_height - crop_size) // 2
-            right = left + crop_size
-            bottom = top + crop_size
-            
-            # Crop gambar ke square
-            image = image.crop((left, top, right, bottom))
-            
-            # Resize ke 500x500
-            source = image.resize((500, 500), Image.LANCZOS)
+        # Calculate the scaling factor to fit the image within the target size
+        scale_factor = min(target_size[0] / image.width, target_size[1] / image.height)
+        new_width = int(image.width * scale_factor)
+        new_height = int(image.height * scale_factor)
 
-        else:
-            # Calculate the scaling factor to fit the image within the target size
-            scale_factor = min(target_size[0] / image.width, target_size[1] / image.height)
-            new_width = int(image.width * scale_factor)
-            new_height = int(image.height * scale_factor)
-
-            # Resize the source image to fit within target size
-            source = image.resize((new_width, new_height), Image.LANCZOS)
+        # Resize the source image to fit within target size
+        source = image.resize((new_width, new_height), Image.LANCZOS)
 
         # Apply resize option using percentages
         if resize_option == "Full":
@@ -191,8 +171,8 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
         width = 720
         height = 1024
     elif target_ratio == "Instagram Post":
-        width = 500
-        height = 500
+        width = 1080
+        height = 1080
     elif target_ratio == "Instagram Stories":
         width = 800
         height = 1280

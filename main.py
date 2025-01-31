@@ -186,7 +186,10 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     elif target_ratio == "Instagram Post":
         width = 1080
         height = 1035
-    elif target_ratio == "Instagram Reels" or "Instagram Reels" or "Tiktok Post":
+    elif target_ratio == "Instagram Reels":
+        width = 1080
+        height = 1920
+    elif target_ratio == "Tiktok Post":
         width = 1080
         height = 1920
     elif target_ratio == "Tiktok Thumbnail":

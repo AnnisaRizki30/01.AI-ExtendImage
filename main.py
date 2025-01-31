@@ -245,22 +245,17 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     # if prompt_input and prompt_input.strip() != "":
     #     final_prompt += ", " + prompt_input.strip()
 
-    final_prompt = f"{prompt_input} , high quality, 4k"
+    final_prompt = f"{prompt_input} , high quality, 4k, avoid bad anatomy, avoid bad proportions, avoid disfigured, avoid deformed, avoid blurry, avoid cropped, avoid duplicate, avoid error, avoid extra limbs, avoid malformed, avoid mutated, avoid mutilated, avoid nudity, avoid out of frame, avoid low quality, avoid lowres, avoid long neck, avoid jpeg artifacts, avoid gross proportions, avoid worst quality, avoid unflattering"
 
-    negative_prompt = "bad anatomy, bad proportions, disfigured, deformed, blurry, cropped, duplicate, error, extra limbs, malformed, mutated, mutilated, nudity, out of frame, low quality, lowres, blurry, long neck, jpeg artifacts, gross proportions, worst quality, unflattering"
     # Encoding prompt menggunakan mixed precision
     with torch.inference_mode():
         with autocast():
-            # (
-            #     prompt_embeds,
-            #     negative_prompt_embeds,
-            #     pooled_prompt_embeds,
-            #     negative_pooled_prompt_embeds,
-            # ) = pipe.encode_prompt(final_negative_prompt, "cuda", True)
-            prompt_embeds = pipe.encode_prompt(final_prompt, device="cuda")
-            negative_prompt_embeds = pipe.encode_prompt(negative_prompt, device="cuda")
-            pooled_prompt_embeds = pipe.encode_prompt(final_prompt, device="cuda")
-            negative_pooled_prompt_embeds = pipe.encode_prompt(negative_prompt, device="cuda")
+            (
+                prompt_embeds,
+                negative_prompt_embeds,
+                pooled_prompt_embeds,
+                negative_pooled_prompt_embeds,
+            ) = pipe.encode_prompt(final_negative_prompt, "cuda", True)
 
     for image in pipe(
         prompt_embeds=prompt_embeds,

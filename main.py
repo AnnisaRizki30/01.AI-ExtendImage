@@ -201,7 +201,10 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     elif target_ratio == "Youtube Channel":
         width = 2560
         height = 1440
-    elif target_ratio == "Facebook Cover" or "Linkedin Banner":
+    elif target_ratio == "Facebook Cover":
+        width = 820
+        height = 312
+    elif target_ratio == "Linkedin Banner":
         width = 820
         height = 312
     elif target_ratio == "Facebook Post":

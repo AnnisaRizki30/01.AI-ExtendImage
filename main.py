@@ -255,7 +255,7 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
                 negative_prompt_embeds,
                 pooled_prompt_embeds,
                 negative_pooled_prompt_embeds,
-            ) = pipe.encode_prompt(final_negative_prompt, "cuda", True)
+            ) = pipe.encode_prompt(final_prompt, "cuda", True)
 
     for image in pipe(
         prompt_embeds=prompt_embeds,

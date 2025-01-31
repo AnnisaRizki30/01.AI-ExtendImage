@@ -171,7 +171,10 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     width = None
     height = None
 
-    if target_ratio == "Square":
+    if target_ratio == "Custom":
+        width = custom_width
+        height = custom_height
+    elif target_ratio == "Square":
         width = 1024
         height = 1024
     elif target_ratio == "Landscape":
@@ -216,9 +219,7 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     elif target_ratio == "Line":
         width = 1040
         height = 1040
-    elif target_ratio == "Custom":
-        width = custom_width
-        height = custom_height
+
 
     # Pastikan width dan height tidak None sebelum melanjutkan
     if width is None or height is None:

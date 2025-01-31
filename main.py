@@ -190,6 +190,10 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
         width = custom_width
         height = custom_height
 
+    # Pastikan width dan height tidak None sebelum melanjutkan
+    if width is None or height is None:
+        raise ValueError(f"Invalid target_ratio: {target_ratio}. Width and height must be specified.")
+
     resize_option = "Full"
     overlap_percentage = 10
     custom_resize_percentage = 50

@@ -186,6 +186,36 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     elif target_ratio == "Instagram Stories":
         width = 800
         height = 1280
+    elif target_ratio == "Instagram Reels" or "Tiktok Post":
+        width = 1080
+        height = 1920
+    elif target_ratio == "Tiktok Thumbnail":
+        width = 1080
+        height = 1440
+    elif target_ratio == "Youtube Cover":
+        width = 1280
+        height = 720
+    elif target_ratio == "Youtube Channel":
+        width = 2560
+        height = 1440
+    elif target_ratio == "Facebook Cover" or "Linkedin Banner":
+        width = 820
+        height = 312
+    elif target_ratio == "Facebook Post":
+        width = 1200
+        height = 628
+    elif target_ratio == "Gambar Profile Linkedin":
+        width = 800
+        height = 800
+    elif target_ratio == "Sticker Whatsapp":
+        width = 512
+        height = 512
+    elif target_ratio == "Pinterest":
+        width = 735
+        height = 1102
+    elif target_ratio == "Line":
+        width = 1040
+        height = 1040
     elif target_ratio == "Custom":
         width = custom_width
         height = custom_height

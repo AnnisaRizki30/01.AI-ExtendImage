@@ -241,20 +241,24 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     cnet_image = background.copy()
     cnet_image.paste(0, (0, 0), mask)
 
-    final_prompt = "high quality, no nudity, no extra limbs, no disfigured bodies"
-    if prompt_input and prompt_input.strip() != "":
-        final_prompt += ", " + prompt_input.strip()
+    # final_prompt = "high quality, no nudity, no extra limbs, no disfigured bodies"
+    # if prompt_input and prompt_input.strip() != "":
+    #     final_prompt += ", " + prompt_input.strip()
 
+    final_prompt = f"{prompt_input} , high quality, 4k"
+
+    negative_prompt = "bad anatomy, bad proportions, disfigured, deformed, blurry, cropped, duplicate, error, extra limbs, malformed, mutated, mutilated, nudity, out of frame, low quality, lowres, blurry, long neck, jpeg artifacts, gross proportions, worst quality, unflattering"
     # Encoding prompt menggunakan mixed precision
     with torch.inference_mode():
         with autocast():
-            (
-                prompt_embeds,
-                negative_prompt_embeds,
-                pooled_prompt_embeds,
-                negative_pooled_prompt_embeds,
-            ) = pipe.encode_prompt(final_prompt, "cuda", True)
-
+            # (
+            #     prompt_embeds,
+            #     negative_prompt_embeds,
+            #     pooled_prompt_embeds,
+            #     negative_pooled_prompt_embeds,
+            # ) = pipe.encode_prompt(final_negative_prompt, "cuda", True)
+            prompt_embeds, negative_prompt_embeds = pipe.encode_prompt(final_prompt, "cuda", True)
+            negative_prompt_embeds = pipe.encode_prompt(negative_prompt, "cuda", True)
 
     for image in pipe(
         prompt_embeds=prompt_embeds,

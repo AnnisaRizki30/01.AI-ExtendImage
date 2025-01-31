@@ -263,6 +263,7 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     ):
         yield cnet_image, image
 
+    mask = mask.resize(image.size)
     image = image.convert("RGBA")
     cnet_image.paste(image, (0, 0), mask)
 

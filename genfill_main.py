@@ -50,12 +50,17 @@ pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
 
 def fill_image(prompt, image, paste_back=True):
-    (
-        prompt_embeds,
-        negative_prompt_embeds,
-        pooled_prompt_embeds,
-        negative_pooled_prompt_embeds,
-    ) = pipe.encode_prompt(prompt, "cuda", True)
+    torch.cuda.empty_cache()
+    torch.cuda.ipc_collect()
+    
+    with torch.inference_mode():
+        with autocast():
+            (
+                prompt_embeds,
+                negative_prompt_embeds,
+                pooled_prompt_embeds,
+                negative_pooled_prompt_embeds,
+            ) = pipe.encode_prompt(final_prompt, "cuda", True)
 
     source = image["background"]
     mask = image["layers"][0]

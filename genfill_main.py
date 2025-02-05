@@ -64,15 +64,34 @@ def fill_image(prompt, image, paste_back=True):
                 negative_pooled_prompt_embeds,
             ) = pipe.encode_prompt(final_prompt, "cuda", True)
 
+    # Pastikan background tersedia
+    if "background" not in image or "layers" not in image or not image["layers"]:
+        raise ValueError("Background image or mask is missing")
+
     source = image["background"]
     mask = image["layers"][0]
 
+    # Pastikan mask memiliki channel alpha sebelum di-split
+    if mask.mode != "RGBA":
+        mask = mask.convert("RGBA")
+
     alpha_channel = mask.split()[3]
     binary_mask = alpha_channel.point(lambda p: p > 0 and 255)
-    binary_mask = binary_mask.resize(cnet_image.size, Image.LANCZOS)
-    cnet_image = source.copy()
-    cnet_image.paste(0, (0, 0), binary_mask)
 
+    # Pastikan source memiliki mode RGBA
+    if source.mode != "RGBA":
+        source = source.convert("RGBA")
+
+    # Salin background untuk diproses
+    cnet_image = source.copy()
+
+    try:
+        cnet_image.paste(0, (0, 0), binary_mask)
+    except Exception as e:
+        print(f"Error saat paste mask: {e}")
+        return
+
+    # Proses dengan model
     for image in pipe(
         prompt_embeds=prompt_embeds,
         negative_prompt_embeds=negative_prompt_embeds,

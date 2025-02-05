@@ -72,7 +72,7 @@ def fill_image(prompt, image, paste_back=True):
 
     # Pisahkan channel alpha dari mask
     alpha_channel = mask.split()[3]
-    binary_mask = alpha_channel.point(lambda p: p > 0 and 255)
+    binary_mask = alpha_channel.point(lambda p: 255 if p > 0 else 0)
 
     # **Debugging Mode & Size**
     print(f"Source Image Mode: {source.mode}, Size: {source.size}")

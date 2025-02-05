@@ -69,6 +69,7 @@ def fill_image(prompt, image, paste_back=True):
 
     alpha_channel = mask.split()[3]
     binary_mask = alpha_channel.point(lambda p: p > 0 and 255)
+    binary_mask = binary_mask.resize(cnet_image.size, Image.LANCZOS)
     cnet_image = source.copy()
     cnet_image.paste(0, (0, 0), binary_mask)
 

@@ -18,6 +18,7 @@ warnings.simplefilter("ignore", category=UserWarning)
 warnings.simplefilter("ignore", category=SyntaxWarning)
 from torch.cuda.amp import autocast  
 
+# Unduh file konfigurasi dan model
 config_file = hf_hub_download(
     "xinsir/controlnet-union-sdxl-1.0",
     filename="config_promax.json",
@@ -35,10 +36,12 @@ model, _, _, _, _ = ControlNetModel_Union._load_pretrained_model(
 )
 model.to(device="cuda", dtype=torch.float16)
 
+# Load VAE untuk meningkatkan kualitas hasil
 vae = AutoencoderKL.from_pretrained(
     "madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16
 ).to("cuda")
 
+# Load pipeline Stable Diffusion XL dengan ControlNet
 pipe = StableDiffusionXLFillPipeline.from_pretrained(
     "SG161222/RealVisXL_V5.0_Lightning",
     torch_dtype=torch.float16,
@@ -80,23 +83,31 @@ def fill_image(prompt, image):
     # Hapus area mask dari gambar input (diisi transparan)
     cnet_image.paste(0, (0, 0), binary_mask)
 
-    # Proses gambar dengan model
-    generated_images = pipe(
+    # Proses gambar dengan model menggunakan generator
+    result_generator = pipe(
         prompt_embeds=prompt_embeds,
         negative_prompt_embeds=negative_prompt_embeds,
         pooled_prompt_embeds=pooled_prompt_embeds,
         negative_pooled_prompt_embeds=negative_pooled_prompt_embeds,
         image=cnet_image,
-    ).images
+    )
 
-    # Ambil gambar hasil generasi
-    generated_image = generated_images[0].convert("RGBA")
+    # Ambil gambar hasil generasi dari generator
+    generated_image = None
+    for img, _ in result_generator:  # Loop untuk mengambil hasil dari generator
+        generated_image = img
+
+    if generated_image is None:
+        raise RuntimeError("Gagal menghasilkan gambar dari pipeline.")
+
+    generated_image = generated_image.convert("RGBA")
 
     # Gabungkan hasil generasi dengan gambar asli
     final_image = source.convert("RGBA")
     final_image.paste(generated_image, (0, 0), binary_mask)
 
     return final_image
+
 
 # class Inpainting_Model(nn.Module):
 #     def __init__(self,model_cards = "stabilityai/stable-diffusion-2-inpainting",**kwargs):

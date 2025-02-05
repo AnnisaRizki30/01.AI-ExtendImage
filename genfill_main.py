@@ -83,10 +83,8 @@ def fill_image(prompt, image, paste_back=True):
     if binary_mask.size != source.size:
         binary_mask = binary_mask.resize(source.size, Image.LANCZOS)
 
-    # **Pastikan mode mask 'L'**
-    if binary_mask.mode != "L":
-        binary_mask = binary_mask.convert("L")
-
+    binary_mask = binary_mask.convert("RGBA")
+    
     # **Pastikan cnet_image mode sama dengan source**
     cnet_image = source.convert("RGBA")
 

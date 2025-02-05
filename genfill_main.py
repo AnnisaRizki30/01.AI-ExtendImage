@@ -74,14 +74,14 @@ def fill_image(prompt, image):
     cnet_image = source.copy()
     cnet_image.paste(0, (0, 0), binary_mask)
 
-    with torch.inference_mode(), 
-        torch.autocast("cuda"):
-        (
-            prompt_embeds,
-            negative_prompt_embeds,
-            pooled_prompt_embeds,
-            negative_pooled_prompt_embeds,
-        ) = pipe.encode_prompt(final_prompt, "cuda", True)
+    with torch.inference_mode():
+        with autocast():
+            (
+                prompt_embeds,
+                negative_prompt_embeds,
+                pooled_prompt_embeds,
+                negative_pooled_prompt_embeds,
+            ) = pipe.encode_prompt(final_prompt, "cuda", True)
 
     for image in pipe(
         prompt_embeds=prompt_embeds,

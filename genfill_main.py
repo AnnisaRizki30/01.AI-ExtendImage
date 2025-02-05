@@ -63,41 +63,14 @@ def fill_image(prompt, image, paste_back=True):
                 pooled_prompt_embeds,
                 negative_pooled_prompt_embeds,
             ) = pipe.encode_prompt(final_prompt, "cuda", True)
-
-    if "background" not in image or "layers" not in image or not image["layers"]:
-        raise ValueError("Background image or mask is missing")
-
+            
     source = image["background"]
     mask = image["layers"][0]
 
-    # Pisahkan channel alpha dari mask
     alpha_channel = mask.split()[3]
-    binary_mask = alpha_channel.point(lambda p: 255 if p > 0 else 0)
-
-    # **Debugging Mode & Size**
-    print(f"Source Image Mode: {source.mode}, Size: {source.size}")
-    print(f"Mask Mode: {mask.mode}, Size: {mask.size}")
-    print(f"Binary Mask Mode (Before Convert): {binary_mask.mode}, Size: {binary_mask.size}")
-
-    # **Pastikan ukuran mask sesuai dengan source**
-    if binary_mask.size != source.size:
-        binary_mask = binary_mask.resize(source.size, Image.LANCZOS)
-
-    binary_mask = binary_mask.convert("RGBA")
-    
-    # **Pastikan cnet_image mode sama dengan source**
-    cnet_image = source.convert("RGBA")
-
-    # **Debugging setelah perbaikan**
-    print(f"Binary Mask Mode (Final): {binary_mask.mode}, Size: {binary_mask.size}")
-    print(f"cnet_image Mode: {cnet_image.mode}, Size: {cnet_image.size}")
-
-    # **Coba paste setelah konversi**
-    try:
-        cnet_image.paste(0, (0, 0), binary_mask)
-    except Exception as e:
-        print("Error saat paste:", e)
-        raise e
+    binary_mask = alpha_channel.point(lambda p: p > 0 and 255)
+    cnet_image = source.copy()
+    cnet_image.paste(0, (0, 0), binary_mask)
 
     # **Proses dengan model**
     for image in pipe(

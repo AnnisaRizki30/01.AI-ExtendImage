@@ -53,7 +53,7 @@ def fill_image(prompt, image, paste_back=True):
     torch.cuda.empty_cache()
     torch.cuda.ipc_collect()
 
-    final_prompt = f"{prompt}, high quality, 4k, avoid bad anatomy, avoid bad proportions"
+    final_prompt = f"{prompt}, high quality, 4k, avoid bad anatomy, avoid bad proportions, avoid disfigured, avoid deformed, avoid blurry, avoid cropped, avoid duplicate, avoid error, avoid extra limbs, avoid malformed, avoid mutated, avoid mutilated, avoid nudity, avoid out of frame, avoid low quality, avoid lowres, avoid long neck, avoid jpeg artifacts, avoid gross proportions, avoid worst quality, avoid unflattering"
 
     with torch.inference_mode():
         with autocast():

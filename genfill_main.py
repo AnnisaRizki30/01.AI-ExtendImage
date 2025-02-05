@@ -53,8 +53,8 @@ def fill_image(prompt, image, paste_back=True):
     torch.cuda.empty_cache()
     torch.cuda.ipc_collect()
 
-    final_prompt = f"{prompt} , high quality, 4k, avoid bad anatomy, avoid bad proportions, avoid disfigured, avoid deformed, avoid blurry, avoid cropped, avoid duplicate, avoid error, avoid extra limbs, avoid malformed, avoid mutated, avoid mutilated, avoid nudity, avoid out of frame, avoid low quality, avoid lowres, avoid long neck, avoid jpeg artifacts, avoid gross proportions, avoid worst quality, avoid unflattering"
-    
+    final_prompt = f"{prompt}, high quality, 4k, avoid bad anatomy, avoid bad proportions"
+
     with torch.inference_mode():
         with autocast():
             (
@@ -70,30 +70,38 @@ def fill_image(prompt, image, paste_back=True):
     source = image["background"]
     mask = image["layers"][0]
 
-    # Ambil channel alpha sebagai mask biner
+    # Pisahkan channel alpha dari mask
     alpha_channel = mask.split()[3]
     binary_mask = alpha_channel.point(lambda p: p > 0 and 255)
 
-    # Debugging ukuran sebelum paste
-    print(f"Source Image Size: {source.size}")
-    print(f"Mask Size (Before Processing): {mask.size}")
-    print(f"Binary Mask Mode: {binary_mask.mode}, Size: {binary_mask.size}")
-    print(f"cnet_image Size: {source.size}")
+    # **Debugging Mode & Size**
+    print(f"Source Image Mode: {source.mode}, Size: {source.size}")
+    print(f"Mask Mode: {mask.mode}, Size: {mask.size}")
+    print(f"Binary Mask Mode (Before Convert): {binary_mask.mode}, Size: {binary_mask.size}")
 
-    # Pastikan ukuran binary_mask sesuai dengan cnet_image
-    binary_mask = binary_mask.resize(source.size, Image.LANCZOS)
+    # **Pastikan ukuran mask sesuai dengan source**
+    if binary_mask.size != source.size:
+        binary_mask = binary_mask.resize(source.size, Image.LANCZOS)
 
-    # Konversi mask jika mode "1" (binary) menjadi "L" (grayscale 8-bit)
-    if binary_mask.mode == "1":
+    # **Pastikan mode mask 'L'**
+    if binary_mask.mode != "L":
         binary_mask = binary_mask.convert("L")
 
-    cnet_image = source.copy()
-    cnet_image.paste(0, (0, 0), binary_mask)
+    # **Pastikan cnet_image mode sama dengan source**
+    cnet_image = source.convert("RGBA")
 
-    # Debugging setelah perbaikan ukuran
-    print(f"Binary Mask (Final) Size: {binary_mask.size}")
+    # **Debugging setelah perbaikan**
+    print(f"Binary Mask Mode (Final): {binary_mask.mode}, Size: {binary_mask.size}")
+    print(f"cnet_image Mode: {cnet_image.mode}, Size: {cnet_image.size}")
 
-    # Proses dengan model
+    # **Coba paste setelah konversi**
+    try:
+        cnet_image.paste(0, (0, 0), binary_mask)
+    except Exception as e:
+        print("Error saat paste:", e)
+        raise e
+
+    # **Proses dengan model**
     for image in pipe(
         prompt_embeds=prompt_embeds,
         negative_prompt_embeds=negative_prompt_embeds,

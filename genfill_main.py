@@ -73,9 +73,26 @@ def fill_image(prompt, image, paste_back=True):
     # Ambil channel alpha sebagai mask biner
     alpha_channel = mask.split()[3]
     binary_mask = alpha_channel.point(lambda p: p > 0 and 255)
+
+    # Debugging ukuran sebelum paste
+    print(f"Source Image Size: {source.size}")
+    print(f"Mask Size (Before Processing): {mask.size}")
+    print(f"Binary Mask Mode: {binary_mask.mode}, Size: {binary_mask.size}")
+    print(f"cnet_image Size: {source.size}")
+
+    # Pastikan ukuran binary_mask sesuai dengan cnet_image
+    binary_mask = binary_mask.resize(source.size, Image.LANCZOS)
+
+    # Konversi mask jika mode "1" (binary) menjadi "L" (grayscale 8-bit)
+    if binary_mask.mode == "1":
+        binary_mask = binary_mask.convert("L")
+
     cnet_image = source.copy()
     cnet_image.paste(0, (0, 0), binary_mask)
-    
+
+    # Debugging setelah perbaikan ukuran
+    print(f"Binary Mask (Final) Size: {binary_mask.size}")
+
     # Proses dengan model
     for image in pipe(
         prompt_embeds=prompt_embeds,

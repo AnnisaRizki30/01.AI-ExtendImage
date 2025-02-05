@@ -49,7 +49,7 @@ pipe = StableDiffusionXLFillPipeline.from_pretrained(
 pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
 
 
-def fill_image(prompt, image, paste_back=True):
+def fill_image(prompt, image):
     torch.cuda.empty_cache()
     torch.cuda.ipc_collect()
 
@@ -70,7 +70,7 @@ def fill_image(prompt, image, paste_back=True):
     alpha_channel = mask.split()[3]
     binary_mask = alpha_channel.point(lambda p: p > 0 and 255)
     cnet_image = source.copy()
-    cnet_image.paste(0, (0, 0), binary_mask)
+    # cnet_image.paste(0, (0, 0), binary_mask)
 
     # **Proses dengan model**
     for image in pipe(
@@ -82,6 +82,7 @@ def fill_image(prompt, image, paste_back=True):
     ):
         yield image, cnet_image
 
+    paste_back = True
     if paste_back:
         image = image.convert("RGBA")
         cnet_image.paste(image, (0, 0), binary_mask)

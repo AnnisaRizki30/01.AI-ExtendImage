@@ -57,56 +57,46 @@ def fill_image(prompt, image):
     torch.cuda.empty_cache()
     torch.cuda.ipc_collect()
 
-    final_prompt = f"{prompt}, high quality, 4k, avoid bad anatomy, avoid bad proportions, avoid disfigured, avoid deformed, avoid blurry, avoid cropped, avoid duplicate, avoid error, avoid extra limbs, avoid malformed, avoid mutated, avoid mutilated, avoid nudity, avoid out of frame, avoid low quality, avoid lowres, avoid long neck, avoid jpeg artifacts, avoid gross proportions, avoid worst quality, avoid unflattering"
+    final_prompt = (
+        f"{prompt}, high quality, 4k, avoid bad anatomy, avoid bad proportions, "
+        "avoid disfigured, avoid deformed, avoid blurry, avoid cropped, avoid duplicate, "
+        "avoid error, avoid extra limbs, avoid malformed, avoid mutated, avoid mutilated, "
+        "avoid nudity, avoid out of frame, avoid low quality, avoid lowres, avoid long neck, "
+        "avoid jpeg artifacts, avoid gross proportions, avoid worst quality, avoid unflattering"
+    )
 
-    # Encode prompt embeddings untuk ControlNet
-    with torch.inference_mode():
-        with torch.autocast("cuda"):
-            (
-                prompt_embeds,
-                negative_prompt_embeds,
-                pooled_prompt_embeds,
-                negative_pooled_prompt_embeds,
-            ) = pipe.encode_prompt(final_prompt, "cuda", True)
-
-    # Gambar asli dan mask
     source = image["background"]  # Gambar asli
     mask = image["layers"][0]  # Masking area
 
-    # Pastikan mask memiliki kanal alpha
-    alpha_channel = mask.split()[3]  # Kanal alpha
+    alpha_channel = mask.split()[3]  
     binary_mask = alpha_channel.point(lambda p: 255 if p > 0 else 0)
 
-    # Salin gambar asli untuk manipulasi
     cnet_image = source.copy()
-
-    # Hapus area mask dari gambar input (diisi transparan)
     cnet_image.paste(0, (0, 0), binary_mask)
 
-    # Proses gambar dengan model menggunakan generator
-    result_generator = pipe(
+    with torch.inference_mode(), 
+        torch.autocast("cuda"):
+        (
+            prompt_embeds,
+            negative_prompt_embeds,
+            pooled_prompt_embeds,
+            negative_pooled_prompt_embeds,
+        ) = pipe.encode_prompt(final_prompt, "cuda", True)
+
+    for image in pipe(
         prompt_embeds=prompt_embeds,
         negative_prompt_embeds=negative_prompt_embeds,
         pooled_prompt_embeds=pooled_prompt_embeds,
         negative_pooled_prompt_embeds=negative_pooled_prompt_embeds,
         image=cnet_image,
-    )
+    ):
+        yield image, cnet_image
 
-    # Ambil gambar hasil generasi dari generator
-    generated_image = None
-    for img, _ in result_generator:  # Loop untuk mengambil hasil dari generator
-        generated_image = img
-
-    if generated_image is None:
-        raise RuntimeError("Gagal menghasilkan gambar dari pipeline.")
-
-    generated_image = generated_image.convert("RGBA")
-
-    # Gabungkan hasil generasi dengan gambar asli
-    final_image = source.convert("RGBA")
-    final_image.paste(generated_image, (0, 0), binary_mask)
-
-    return final_image
+    image = image.convert("RGBA")
+    cnet_image.paste(image, (0, 0), binary_mask)
+    
+    yield source, cnet_image
+        
 
 
 # class Inpainting_Model(nn.Module):

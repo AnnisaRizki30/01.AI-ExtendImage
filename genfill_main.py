@@ -70,32 +70,12 @@ def fill_image(prompt, image, paste_back=True):
     source = image["background"]
     mask = image["layers"][0]
 
-    # Pastikan ukuran mask sama dengan background
-    mask = mask.resize(source.size, Image.LANCZOS)
-
-    # Pastikan semua gambar dalam mode RGBA
-    if source.mode != "RGBA":
-        source = source.convert("RGBA")
-
-    if mask.mode != "RGBA":
-        mask = mask.convert("RGBA")
-
     # Ambil channel alpha sebagai mask biner
     alpha_channel = mask.split()[3]
     binary_mask = alpha_channel.point(lambda p: p > 0 and 255)
-
-    # Pastikan ukuran binary_mask cocok dengan cnet_image
     cnet_image = source.copy()
-    if binary_mask.size != cnet_image.size:
-        print(f"Resizing binary_mask from {binary_mask.size} to {cnet_image.size}")
-        binary_mask = binary_mask.resize(cnet_image.size, Image.LANCZOS)
-
-    try:
-        cnet_image.paste(0, (0, 0), binary_mask)
-    except Exception as e:
-        print(f"Error saat paste mask: {e}")
-        return
-
+    cnet_image.paste(0, (0, 0), binary_mask)
+    
     # Proses dengan model
     for image in pipe(
         prompt_embeds=prompt_embeds,

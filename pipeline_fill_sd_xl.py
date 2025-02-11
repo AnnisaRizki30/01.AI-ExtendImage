@@ -175,7 +175,10 @@ class StableDiffusionXLFillPipeline(DiffusionPipeline, StableDiffusionMixin):
             negative_prompt_embeds = torch.zeros_like(prompt_embeds)
             negative_pooled_prompt_embeds = torch.zeros_like(pooled_prompt_embeds)
         elif do_classifier_free_guidance and negative_prompt_embeds is None:
-            negative_prompt = "text, bad anatomy, nudity, bad proportions, blurry, cropped, deformed, disfigured, duplicate, error, extra limbs, gross proportions, jpeg artifacts, long neck, low quality, lowres, malformed, morbid, mutated, mutilated, out of frame, ugly, worst quality"
+            negative_prompt = """bad anatomy, bad proportions, disfigured, deformed, blurry, cropped, duplicate, error, extra limbs, 
+            malformed, mutated, mutilated, nsfw, explicit, nude, nudity, naked, suggestive, censored, inappropriate, erotic, sexual content, 
+            explicit content, out of frame, low quality, lowres, long neck, jpeg artifacts, gross proportions, worst quality, unflattering"""
+            
             negative_prompt_2 = negative_prompt
 
             # normalize str to list

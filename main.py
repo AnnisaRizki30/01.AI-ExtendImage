@@ -189,6 +189,9 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     elif target_ratio == "Instagram Reels":
         width = 1080
         height = 1920
+    elif target_ratio == "Instagram Stories":
+        width = 1080
+        height = 1920
     elif target_ratio == "Tiktok Post":
         width = 1080
         height = 1920
@@ -245,7 +248,14 @@ def inference_extend_image(image, num_inference_steps=8, target_ratio=None, cust
     # if prompt_input and prompt_input.strip() != "":
     #     final_prompt += ", " + prompt_input.strip()
 
-    final_prompt = f"{prompt_input} , high quality, 4k, avoid bad anatomy, avoid bad proportions, avoid disfigured, avoid deformed, avoid blurry, avoid cropped, avoid duplicate, avoid error, avoid extra limbs, avoid malformed, avoid mutated, avoid mutilated, avoid nudity, avoid out of frame, avoid low quality, avoid lowres, avoid long neck, avoid jpeg artifacts, avoid gross proportions, avoid worst quality, avoid unflattering"
+    final_prompt = f"""{prompt_input} , 
+    high quality, 4k, 
+    avoid bad anatomy, avoid bad proportions, avoid disfigured, avoid deformed, avoid blurry, avoid cropped, avoid duplicate, 
+    avoid error, avoid extra limbs, avoid malformed, avoid mutated, avoid mutilated, avoid out of frame, 
+    avoid low quality, avoid lowres, avoid long neck, avoid jpeg artifacts, avoid gross proportions, avoid worst quality, 
+    avoid unflattering, avoid nsfw, avoid explicit, avoid nude, avoid nudity, avoid naked, avoid suggestive, avoid censored, 
+    avoid inappropriate, avoid erotic, avoid sexual content, avoid explicit content
+    """
 
     # Encoding prompt menggunakan mixed precision
     with torch.inference_mode():

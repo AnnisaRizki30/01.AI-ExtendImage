@@ -30,7 +30,6 @@ class Inpainting_Model(nn.Module):
                 guidance_scale=7.5,
                 num_samples=1, seed=0):
         generator = torch.Generator(device=self.device).manual_seed(seed)
-        neg_prompt = "bad anatomy, bad proportions, disfigured, deformed, blurry, cropped, duplicate, error, extra limbs, malformed, mutated, mutilated, nudity, out of frame, low quality, lowres, long neck, jpeg artifacts, gross proportions, worst quality, unflattering"
         with torch.inference_mode():  
             with torch.autocast(device_type=self.device, dtype=torch.float16): 
                 output_img = self.pipeline(
@@ -41,7 +40,7 @@ class Inpainting_Model(nn.Module):
                     height=image.height,
                     num_inference_steps=steps,
                     guidance_scale=guidance_scale,
-                    negative_prompt=neg_prompt,
+                    negative_prompt="bad anatomy, bad proportions, disfigured, deformed, blurry, cropped, duplicate, error, extra limbs, malformed, mutated, mutilated, nudity, out of frame, low quality, lowres, long neck, jpeg artifacts, gross proportions, worst quality, unflattering",
                     generator=generator,
                     num_images_per_prompt=num_samples,
                 ).images

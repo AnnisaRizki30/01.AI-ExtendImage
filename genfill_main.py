@@ -31,13 +31,12 @@ class Inpainting_Model(nn.Module):
                 num_samples=1, seed=0):
         generator = torch.Generator(device=self.device).manual_seed(seed)
         neg_prompt = "bad anatomy, bad proportions, disfigured, deformed, blurry, cropped, duplicate, error, extra limbs, malformed, mutated, mutilated, nudity, out of frame, low quality, lowres, long neck, jpeg artifacts, gross proportions, worst quality, unflattering"
-        
-        # Ensure both prompt and negative_prompt are strings
+
         if isinstance(prompt, tuple):
-            prompt = " ".join(prompt)  # Convert tuple to string if it's a tuple
+            prompt = " ".join(prompt)  
     
         if isinstance(neg_prompt, tuple):
-            neg_prompt = " ".join(neg_prompt)  # Convert tuple to string if it's a tuple
+            neg_prompt = " ".join(neg_prompt)  
     
         with torch.inference_mode():  
             with torch.autocast(device_type=self.device, dtype=torch.float16): 
@@ -49,7 +48,7 @@ class Inpainting_Model(nn.Module):
                     height=image.height,
                     num_inference_steps=steps,
                     guidance_scale=guidance_scale,
-                    negative_prompt=neg_prompt,  # Should be a string
+                    negative_prompt=neg_prompt,  
                     generator=generator,
                     num_images_per_prompt=num_samples,
                 ).images

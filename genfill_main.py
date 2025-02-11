@@ -26,7 +26,7 @@ class Inpainting_Model(nn.Module):
 
 
     def forward(self, prompt, image, mask,
-                negative_prompt = "bad anatomy, bad proportions, disfigured, deformed, blurry, cropped, duplicate, error, extra limbs, malformed, mutated, mutilated, nudity, out of frame, low quality, lowres, long neck, jpeg artifacts, gross proportions, worst quality, unflattering"
+                negative_prompt,
                 steps=50,
                 guidance_scale=7.5,
                 num_samples=1, seed=0):
